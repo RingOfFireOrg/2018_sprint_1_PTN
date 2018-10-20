@@ -4,13 +4,15 @@
 
 
 // Declare the Servo pin 
-int servoPinLeft = 3; 
-int servoPinRight = 2; 
 int pushPin = 0; //define shock port
-int reedDigitalPin=6;
-int ledPin=13;
+int servoPinRight = 2; 
+int servoPinLeft = 3; 
 int trigPin = 4;
 int echoPin = 5;
+int reedDigitalPin=6;
+int servoPinSample = 7;
+int ledPin=13;
+
 
 // Declare variables for logic
 boolean shouldMagnetRead = true;
@@ -19,15 +21,17 @@ int distance;
 int numberOfMagnets=0;
 boolean stopForever = false;
 // Create a servo object 
-Servo ServoLeft, ServoRight; 
+Servo ServoLeft, ServoRight, ServoSample; 
 
 void setup() { 
    // We need to attach the servo to the used pin number 
     ServoLeft.attach(servoPinLeft); 
     ServoRight.attach(servoPinRight);
+    ServoSample.attach(servoPinSample);
     // Initialise Servo Speed
     ServoLeft.write(90);
     ServoRight.write(90);
+    ServoSample.write(90);
 
     pinMode(pushPin, INPUT); //define shock sensor as a input port
     pinMode(ledPin,OUTPUT);
@@ -71,7 +75,15 @@ void backup(){
 }
 void sample(){
     delay(1000);
+    ServoSample.write(0);
+    delay(1000);
+    ServoSample.write(120);
+    delay(1000);
+    ServoSample.write(30);
+    delay(1000);
+    ServoSample.write(90);
 }
+
 
 void loop(){ 
     if(stopForever == true){
@@ -126,7 +138,7 @@ void loop(){
         stop();
         //delay(1000);
         //backward();
-        //delay(1000);
+        //delay(1000);        
         stopForever = true;
     }
 }
