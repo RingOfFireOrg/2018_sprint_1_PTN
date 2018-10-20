@@ -1,24 +1,44 @@
 // Include the Servo library 
 #include <Servo.h> 
+
+
+
 // Declare the Servo pin 
 int servoPinLeft = 3; 
 int servoPinRight = 2; 
-int Shock = 0; //define shock port
-
+int pushPin = 0; //define shock port
 int reedDigitalPin=6;
-int Led=13;
+int ledPin=13;
+int trigPin = 4;
+int echoPin = 5;
+
+// Declare variables for logic
 boolean shouldMagnetRead = true;
+long duration;
+int distance;
+int numberOfMagnets=0;
+boolean stopForever = false;
 // Create a servo object 
 Servo ServoLeft, ServoRight; 
+
 void setup() { 
    // We need to attach the servo to the used pin number 
-   ServoLeft.attach(servoPinLeft); 
-   ServoRight.attach(servoPinRight);
-   pinMode(Shock, INPUT); //define shock sensor as a input port
-    pinMode(Led,OUTPUT);
-    
-    while(digitalRead(Shock) == HIGH){
+    ServoLeft.attach(servoPinLeft); 
+    ServoRight.attach(servoPinRight);
+    // Initialise Servo Speed
+    ServoLeft.write(90);
+    ServoRight.write(90);
 
+    pinMode(pushPin, INPUT); //define shock sensor as a input port
+    pinMode(ledPin,OUTPUT);
+    pinMode(trigPin, OUTPUT); // Sets the trigPin as an Output
+    pinMode(echoPin, INPUT); // Sets the echoPin as an Input
+    Serial.begin(9600); // Starts the serial communication
+
+    
+    while(digitalRead(pushPin) == HIGH){
+        // No Operation
+        // Wait until a push button is pressed
     }
     delay(2000);
     
@@ -27,51 +47,86 @@ void setup() {
 
 void stop(){
     ServoLeft.write(90); 
-        ServoRight.write(90);
+    ServoRight.write(90);
 }
 
 void forward(){
-    ServoLeft.write(168); 
-    ServoRight.write(20); 
+    ServoLeft.write(148); 
+    ServoRight.write(40); 
+}
+
+void forwardSlow(){
+    ServoLeft.write(128); 
+    ServoRight.write(60); 
+}
+
+void backward(){
+    ServoLeft.write(40); 
+    ServoRight.write(148); 
+}
+
+void backup(){
+    ServoLeft.write(0); 
+    ServoRight.write(180); 
+}
+void sample(){
+    delay(1000);
 }
 
 void loop(){ 
-    // Make servo go to 0 degrees 
-    forward(); 
-    //delay(1000); 
-    // Make servo go to 90 degrees 
-    //ServoLeft.write(90); 
-    //delay(1000); 
-    // Make servo go to 180 degrees 
-    //ServoLeft.write(180); 
-    //delay(1000); 
+    if(stopForever == true){
+        return;
+    }
+    delay(50);
 
-    // Make servo go to 0 degrees 
-    //ServoRight.write(0); 
-    //delay(1000); 
-    // Make servo go to 90 degrees 
-    //ServoRight.write(90); 
-    //delay(1000); 
-    // Make servo go to 180 degrees 
-    //ServoRight.write(180); 
-    //delay(1000); 
-    int numberOfMagnets=0;
-    
-    
+    // Clears the trigPin
+    digitalWrite(trigPin, LOW);
+    delayMicroseconds(2);
+
+    // Sets the trigPin on HIGH state for 10 micro seconds
+    digitalWrite(trigPin, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(trigPin, LOW);
+    // Reads the echoPin, returns the sound wave travel time in microseconds
+    duration = pulseIn(echoPin, HIGH);
+    // Calculating the distance
+    distance= duration*0.034/2;
+    // Prints the distance on the Serial Monitor
+    Serial.print("Distance: ");
+    Serial.println(distance);
 
     if(digitalRead(reedDigitalPin) == HIGH && shouldMagnetRead == true){
         numberOfMagnets++;
-        digitalWrite(Led,HIGH);
+        digitalWrite(ledPin,HIGH);
         stop();
-        delay(1000);
-        forward();
+        sample();
+        //forward();
         shouldMagnetRead = false;
     }
     else if(digitalRead(reedDigitalPin) == LOW) {
-        digitalWrite(Led,LOW);
+        digitalWrite(ledPin,LOW);
         shouldMagnetRead = true;
+        
     }
+    /*
     if(numberOfMagnets > 5){
          stop();
+         stopForever = true;
+    }else{
+        forward(); 
+    }*/
+
+    if(distance < 20){
+        forwardSlow();
+    }else{
+        forward();
+    }
+    
+    if(distance < 15){
+        stop();
+        //delay(1000);
+        //backward();
+        //delay(1000);
+        stopForever = true;
     }
 }
