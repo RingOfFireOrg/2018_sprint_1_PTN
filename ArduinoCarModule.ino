@@ -49,19 +49,25 @@ void setup() {
     
 }
 
+// Changed all the speed control functions to help ensure a drift LEFT.
+//  ie- stop left first, start right first
+// Included a small delay to force left on stops and starts.  -Glen
 void stop(){
-    ServoLeft.write(90); 
+    ServoLeft.write(90);
+    delay(100);
     ServoRight.write(90);
+
 }
 
 void forward(){
-    ServoLeft.write(148); 
-    ServoRight.write(40); 
+    ServoRight.write(33);
+    delay(100);
+    ServoLeft.write(148);  
 }
 
 void forwardSlow(){
-    ServoLeft.write(128); 
     ServoRight.write(60); 
+    ServoLeft.write(128); 
 }
 
 void backward(){
@@ -74,19 +80,24 @@ void backup(){
     ServoRight.write(180); 
 }
 void sample(){
-    delay(1000);
-    ServoSample.write(0);
+    delay(200);
+    ServoSample.write(2);
     delay(1000);
     ServoSample.write(120);
     delay(1000);
     ServoSample.write(30);
-    delay(1000);
-    ServoSample.write(90);
+//    delay(1000);
+//    ServoSample.write(90);
 }
 
 
 void loop(){ 
     if(stopForever == true){
+       ServoSample.write(110);
+       delay(200);
+       ServoSample.write(130);
+       delay(200);
+    
         return;
     }
     delay(50);
@@ -112,7 +123,8 @@ void loop(){
         digitalWrite(ledPin,HIGH);
         stop();
         sample();
-        //forward();
+        forwardSlow();   //uncommented and changed to slow this so we start forward while near the magnet 
+        delay(100); 
         shouldMagnetRead = false;
     }
     else if(digitalRead(reedDigitalPin) == LOW) {
