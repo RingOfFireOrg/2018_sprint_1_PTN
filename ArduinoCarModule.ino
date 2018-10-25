@@ -94,8 +94,11 @@ void sample(){
 void loop(){ 
     if(stopForever == true){
        ServoSample.write(110);
+       digitalWrite(ledPin,HIGH);
        delay(200);
        ServoSample.write(130);
+       digitalWrite(ledPin,LOW);
+
        delay(200);
     
         return;
